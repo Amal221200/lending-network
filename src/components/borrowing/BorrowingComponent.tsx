@@ -71,7 +71,7 @@ export default function BorrowingForm() {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="collateral-token">Collateral Token</Label>
             <Select value={collateralToken} onValueChange={setCollateralToken} required>
               <SelectTrigger id="collateral-token">
@@ -85,7 +85,7 @@ export default function BorrowingForm() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
           {amount && borrowToken && collateralToken && (
             <div className="text-sm text-muted-foreground">
               You need to provide approximately {collateralAmount} {collateralToken} as collateral

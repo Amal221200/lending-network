@@ -6,6 +6,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { parseEther, formatEther } from 'viem'
+import { encodeSupplyItx, executeItx, getUnifiedBalance, mcChainLink } from '@/tokenMappings'
+import { useKlasterContext } from '../token-exchange/KlasterProvider'
+import { useAccount } from '@particle-network/connectkit'
 
 // Mock token data
 const tokens = [
@@ -16,27 +20,50 @@ const tokens = [
 ]
 
 export default function LendingForm() {
+  const { klaster } = useKlasterContext()
   const [amount, setAmount] = useState('')
   const [haveToken, setHaveToken] = useState('')
   const [lendToken, setLendToken] = useState('')
   const [convertedAmount, setConvertedAmount] = useState('0')
+  const { address } = useAccount()
 
   useEffect(() => {
-    if (amount && haveToken && lendToken) {
+    if (amount && haveToken) {
       const haveRate = tokens.find(t => t.symbol === haveToken)?.rate || 1
-      const lendRate = tokens.find(t => t.symbol === lendToken)?.rate || 1
-      const converted = ((parseFloat(amount) * haveRate) / lendRate).toFixed(6)
-      setConvertedAmount(converted)
+      // const lendRate = tokens.find(t => t.symbol === lendToken)?.rate || 1
+      // const converted = ((parseFloat(amount) * haveRate) / lendRate).toFixed(6)
+      // setConvertedAmount(converted)
     } else {
       setConvertedAmount('0')
     }
-  }, [amount, haveToken, lendToken])
 
-  const handleSubmit = (e: React.FormEvent) => {
+    if (klaster) {
+      console.log(klaster);
+
+      getUnifiedBalance(klaster).then((uBalance) => {
+        console.log(uBalance);
+      })
+    }
+
+  }, [amount, haveToken, klaster])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     // Here you would typically send the form data to your backend or smart contract
-    console.log('Submitted:', { amount, haveToken, lendToken, convertedAmount })
-    alert(`Converting ${amount} ${haveToken} to approximately ${convertedAmount} ${lendToken} for lending`)
+    const itx = await encodeSupplyItx({
+      klasterSDK: klaster,
+      tokenMapping: mcChainLink,
+      destChainId: 421614,
+      inputAmount: parseEther(amount),
+      paymentChainId: 11155111,
+      paymentToken: "LINK",
+      recipientAddress: klaster.account.address
+    })
+
+    const result = await executeItx(itx, klaster, "0xD5E6249774b6738364220A430f7c7ca7aE9C500a");
+
+    console.log(result);
+    
   }
 
   return (
@@ -56,6 +83,7 @@ export default function LendingForm() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
+              step="any"
             />
           </div>
           <div className="space-y-2">
@@ -73,7 +101,7 @@ export default function LendingForm() {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="lend-token">Token to Lend</Label>
             <Select value={lendToken} onValueChange={setLendToken} required>
               <SelectTrigger id="lend-token">
@@ -87,7 +115,7 @@ export default function LendingForm() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
           {amount && haveToken && lendToken && (
             <div className="text-sm text-muted-foreground">
               You will be able to lend approximately {convertedAmount} {lendToken}

@@ -18,15 +18,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en'>
+    <html lang='en' suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute='class' defaultTheme='light' enableSystem>
-        <ParticleConnectkit>
-          {children}
-          <Toaster />
-        </ParticleConnectkit>
-        
-</ThemeProvider>
+          <ParticleConnectkit>
+            {children}
+            <Toaster />
+          </ParticleConnectkit>
+        </ThemeProvider>
       </body>
     </html>
   );

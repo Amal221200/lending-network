@@ -10,7 +10,7 @@ import { EntryPosition, wallet } from '@particle-network/connectkit/wallet';
 // embedded wallet end
 
 // evm start
-import { arbitrum, base, lineaSepolia, mainnet, polygon, sepolia, lineaGoerli, lineaTestnet, bscTestnet } from '@particle-network/connectkit/chains';
+import { arbitrum, base, scroll, mainnet, polygon, sepolia, optimism, arbitrumSepolia, bsc } from '@particle-network/connectkit/chains';
 import { evmWalletConnectors } from '@particle-network/connectkit/evm';
 // evm end
 
@@ -24,9 +24,8 @@ if (!projectId || !clientKey || !appId) {
   throw new Error('Please configure the Particle project in .env first!');
 }
 
-const supportChains: Chain[] = [];
+const supportChains: Chain[] = [ sepolia, arbitrumSepolia];
 // evm start
-supportChains.push(mainnet, base, arbitrum, polygon, lineaSepolia, sepolia, lineaGoerli, bscTestnet);
 // evm end
 
 
@@ -48,15 +47,15 @@ const config = createConfig({
       // TODO: replace it with your app metadata.
       metadata: {
         name: 'Connectkit Demo',
-        icon: typeof window !== 'undefined' ? `${window.location.origin}/favicon.ico` : '',
+        icon:  `/favicon.ico`,
         description: 'Particle Connectkit Next.js Scaffold.',
         url: typeof window !== 'undefined' ? window.location.origin : '',
       },
-      walletConnectProjectId: walletConnectProjectId,
+      walletConnectProjectId,
 
     }),
     // evm end
-    
+
   ],
   plugins: [
     // embedded wallet start
@@ -65,7 +64,7 @@ const config = createConfig({
       entryPosition: EntryPosition.BR,
     }),
     // embedded wallet end
-    
+
   ],
   chains: supportChains as unknown as readonly [Chain, ...Chain[]],
 });
